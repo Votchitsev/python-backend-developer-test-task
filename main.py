@@ -4,8 +4,14 @@ import asyncio
 import time
 from aiohttp import ClientSession
 
+from pprint import pprint
+import hashlib
+
 
 async def fetchData(url, dir='', path=''):
+
+    result = []
+
     if (dir):
         try:
             os.mkdir('result/' + dir)
@@ -37,33 +43,53 @@ async def fetchData(url, dir='', path=''):
                         f.write(d)
                         f.close()
 
+                        result.append({
+                            'repo': dir,
+                            'file': file['path'],
+                            'hash': hashlib.sha256(blob['content'].encode()).hexdigest(),
+                        })
+
                 if file['type'] == 'dir':
                     try:
                         os.mkdir(f"./result/{repo_dir}/{file['path']}")
-                        await fetchData(file['url'], repo_dir, file['path'])
+                        response = await fetchData(file['url'], repo_dir, file['path'])
+                        
+                        for i in response:
+                            result.append(i)
 
                     except FileExistsError:
                         print(f"Файл {file['path']} существует.")
 
+    return result
+
 
 if __name__ == '__main__':
 
-    async def main():
+    async def main(tasks_):
 
         url = 'https://gitea.radium.group/api/v1/repos/radium/project-configuration/contents/%2F?ref=HEAD'
 
-        task1 = asyncio.create_task(fetchData(url, 'task1'))
-        task2 = asyncio.create_task(fetchData(url, 'task2'))
-        task3 = asyncio.create_task(fetchData(url, 'task3'))
+        hash = [] 
 
         start = time.time()
 
         print('Старт ->')
 
-        await task1
-        await task2
-        await task3
+        for task in tasks_:
+            hash.append(asyncio.create_task(fetchData(url, task)))
+        
+        result = await asyncio.gather(*hash)
+
+        hash_list = []
+
+        for i in result:
+            hash_list.extend(i)
+        
+        pprint(hash_list)
 
         print('время выполнения скрипта: ', time.time() - start)
+        
+    
+    tasks = ['task1', 'task2', 'task3']
 
-    asyncio.run(main())
+    asyncio.run(main(tasks))
