@@ -3,3 +3,4 @@ result/*
 !.gitkeep
 .vscode
 main_sync.py
+__pycache__/

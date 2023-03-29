@@ -1,0 +1,84 @@
+[nitpick]
+minimum_version = "0.32.0"
+
+[".editorconfig"]
+root = true
+
+[nitpick.styles]
+include = [ "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/editorconfig.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/file-structure.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/styleguide.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/flake8.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/isort.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/darglint.toml", "https://gitea.radium.group/radium/project-configuration/raw/branch/master/nitpick/pytest.toml", "py://nitpick/resources/python/absent.toml",]
+
+[nitpick.meta]
+name = "Files that should not exist"
+url = "http://editorconfig.org/"
+
+[".editorconfig"."*"]
+end_of_line = "lf"
+insert_final_newline = true
+indent_style = "space"
+indent_size = 2
+charset = "utf-8"
+trim_trailing_whitespace = true
+
+[".editorconfig"."*.py"]
+indent_size = 4
+
+[".editorconfig".Makefile]
+indent_style = "tab"
+
+["setup.cfg".flake8]
+ignore = "F841,W504"
+per-file-ignores = "tests/**.py: S101, D103, ANN201"
+spellcheck-targets = "comments"
+sql-excepted-names = "EXISTS"
+
+["setup.cfg".darglint]
+strictness = "long"
+
+[nitpick.files.absent]
+".isort.cfg" = "Move values to setup.cfg, section [isort]"
+".flake8" = "Move values to setup.cfg, section [flake8]"
+"mypy.ini" = "Move values to pyproject.toml, section [tool.mypy]"
+"pytest.ini" = "Move values to pyproject.toml, section [tool.pytest.ini_options]"
+".travis.yml" = "Travis is shutting down, please switch to some other CI service"
+"requirements.txt" = "Install poetry, run 'poetry init' to create pyproject.toml, and move dependencies to it"
+Pipfile = "Use pyproject.toml instead"
+"Pipfile.lock" = "Use pyproject.toml instead"
+".venv" = ""
+".pyup.yml" = "Configure safety instead: https://github.com/pyupio/safety#using-safety-with-a-ci-service"
+
+[nitpick.files.present]
+"CHANGELOG.md" = "A project should have `CHANGELOG.md`"
+"README.md" = "A project should have `README.md`"
+".gitignore" = "A project should have `.gitignore` file"
+
+["pyproject.toml".tool.isort]
+multi_line_output = 3
+include_trailing_comma = true
+use_parentheses = true
+
+["pyproject.toml".tool.poetry.dependencies]
+python = "^3.9"
+
+["pyproject.toml".tool.pytest.ini_options]
+testpaths = [ "tests",]
+python_files = "test*.py"
+addopts = "-rsxX -l --tb=short --strict-markers --doctest-modules"
+xfail_strict = "true"
+
+["pyproject.toml".tool.poetry.group.dev.dependencies]
+wemake-python-styleguide = "^0.17.0"
+flake8-pytest-style = "^1.3.0"
+flake8-SQL = "^0.4.1"
+flake8-annotations = "^2.4.1"
+flake8-logging-format = "^0.8.1"
+flake8-spellcheck = "^0.28.0"
+isort = "^5.7.0"
+pytest = "^7.2.0"
+pytest-cov = "^4.0.0"
+pytest-sugar = "^0.9.5"
+Faker = "^15.1.0"
+pytest-snapshot = "^0.9.0"
+
+["pyproject.toml".tool.poetry.group.dev.dependencies.pytest-xdist]
+extras = [ "psutil",]
+version = "^3.0.2"
