@@ -11,49 +11,49 @@ async def get_file(session, file_to_retrieve):
     Args:
         session: class aiohttp.ClientSession
         file_to_retrieve: dict
+
     Returns:
         dict
     """
     async with session.get(
-        'https://gitea.radium.group/'
-        + 'api/v1/repos/radium/project-configuration/'
-        + 'git/blobs/{sha}'.format(sha=file_to_retrieve["sha"]),
+        'https://gitea.radium.group/' +
+        'api/v1/repos/radium/project-configuration/' +
+        'git/blobs/{sha}'.format(sha=file_to_retrieve['sha']),
             headers={'accept': 'application/json'},
-            ) as blob:
+    ) as blob:
 
         return await blob.json()
 
 
 def write_file(directory, file_content, file_meta_data, path):
-    """Create a file and write data to it
+    """Create a file and write data to it.
 
-        Args:
-            directory: str
-            file_content: dict
-            file_meta_data: dict
-            path: str
-        Returns:
-            None
+    Args:
+        directory: str
+        file_content: dict
+        file_meta_data: dict
+        path: str
     """
     utf8content = file_content['content'].encode('utf-8')
-    bytes = base64.decodebytes(utf8content)
+    bytes_data = base64.decodebytes(utf8content)
 
     with open(
         './result/{directory}/{path}/{name}'.format(
             directory=directory,
             path=path,
-            name=file_meta_data["name"],
-            ), 'wb',
-        ) as file:
+            name=file_meta_data['name'],
+        ),
+            'wb',
+    ) as writing_file:
 
-        file.write(bytes)
+        writing_file.write(bytes_data)
 
 
 def add_dir(directory):
-    """Creates a directory if it doesn't exists.
+    """Create a directory if it doesn't exists.
 
-        Args
-            directory(String): None
+    Args:
+        directory(String): None
     """
     if (directory):
         try:
@@ -63,7 +63,7 @@ def add_dir(directory):
 
 
 async def file_iteration(files, callback, session, path, directory):
-    """Identifies files and directories from the request response.
+    """Identify files and directories from the request response.
 
     Args:
         files: list
@@ -71,6 +71,7 @@ async def file_iteration(files, callback, session, path, directory):
         session: aiohttp.client.ClientSession
         path: string
         directory: string
+
     Returns:
         None
     """
@@ -87,25 +88,23 @@ async def file_iteration(files, callback, session, path, directory):
                     '/{dir}/{path}'.format(
                         dir=directory,
                         path=file_data['path'],
-                        ),
-                    )
+                    ),
+                )
             except FileExistsError:
-                print('Файл {path} существует.'.format(path=file_data['path']))
+                return
 
             await callback(file_data['url'], directory, file_data['path'])
 
 
-async def fetch_data(url, dir='', path=''):
+async def fetch_data(url, directory='', path=''):
     """Get.
 
     Args:
         url: str
-        dir: str
+        directory: str
         path: str
-    Returns:
-        None
     """
-    add_dir(dir)
+    add_dir(directory)
 
     async with ClientSession() as session:
         headers = {'accept': 'application/json'}
@@ -114,4 +113,6 @@ async def fetch_data(url, dir='', path=''):
 
             response = await response.json()
 
-            await file_iteration(response, fetch_data, session, path, dir)
+            await file_iteration(
+                response, fetch_data, session, path, directory,
+            )
