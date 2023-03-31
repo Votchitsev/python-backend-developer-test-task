@@ -5,11 +5,11 @@ import os
 from aiohttp import ClientSession
 
 
-async def get_file(session: object, file_to_retrieve: dict) -> dict:
+async def get_file_data(session: object, file_to_retrieve: dict) -> dict:
     """Retrieve file.
 
     Args:
-        session: class aiohttp.ClientSession
+        session: instance of class aiohttp.ClientSession
         file_to_retrieve: dict
 
     Returns:
@@ -20,9 +20,9 @@ async def get_file(session: object, file_to_retrieve: dict) -> dict:
         'api/v1/repos/radium/project-configuration/' +
         'git/blobs/{sha}'.format(sha=file_to_retrieve['sha']),
             headers={'accept': 'application/json'},
-    ) as blob:
+    ) as http_response:
 
-        return await blob.json()
+        return await http_response.json()
 
 
 def write_file(
@@ -34,10 +34,10 @@ def write_file(
     """Create a file and write data to it.
 
     Args:
-        directory: str
-        file_content: dict
-        file_meta_data: dict
-        path: str
+        directory: (str) main directory name
+        file_content: (dict) includes base64 content
+        file_meta_data: (dict) includes file name
+        path: (str) path to directory for put file
     """
     utf8content = file_content['content'].encode('utf-8')
     bytes_data = base64.decodebytes(utf8content)
@@ -58,7 +58,7 @@ def add_dir(directory: str) -> None:
     """Create a directory if it doesn't exists.
 
     Args:
-        directory(str): None
+        directory: (str) main directory name
     """
     if (directory):
         try:
@@ -67,48 +67,56 @@ def add_dir(directory: str) -> None:
             return
 
 
-async def file_iteration(
-    files: list,
-    callback: object,
-    session: object,
-    path: str,
+async def response_handler(
+    file_system_elements: list,
     directory: str,
+    path: str,
+    session: object,
+    callback: object,
 ) -> None:
-    """Identify files and directories from the request response.
+    """Iterate on file_system_elements to get element types.
+
+    If element is file - call write_file function.
+    If element is directory - call add_dir and
+    callback functions.
 
     Args:
-        files: list
+        file_system_elements: list
+        directory: (str) main directory name
+        path: (str) path to directory for put file
+        session: instance of aiohttp.client.ClientSession
         callback: function fetchData
-        session: aiohttp.client.ClientSession
-        path: string
-        directory: string
     """
-    for file_data in files:
-        if file_data['type'] == 'file':
+    for element in file_system_elements:
+        if element['type'] == 'file':
 
-            fl = await get_file(session, file_data)
+            fl = await get_file_data(session, element)
 
-            write_file(directory, fl, file_data, path)
+            write_file(directory, fl, element, path)
 
-        if file_data['type'] == 'dir':
+        if element['type'] == 'dir':
 
             add_dir(
                 '/{dir}/{path}'.format(
                     dir=directory,
-                    path=file_data['path'],
+                    path=element['path'],
                 ),
             )
 
-            await callback(file_data['url'], directory, file_data['path'])
+            await callback(element['url'], directory, element['path'])
 
 
-async def fetch_data(url: str, directory: str = '', path: str = '') -> None:
-    """Get.
+async def run_fetch_data(
+    url: str,
+    directory: str = '',
+    path: str = '',
+) -> None:
+    """Run task handler.
 
     Args:
-        url: str
-        directory: str
-        path: str
+        url: (str) url for to make get repository request
+        directory: (str) main directory name
+        path: (str) path to directory for put file
     """
     add_dir(directory)
 
@@ -119,6 +127,6 @@ async def fetch_data(url: str, directory: str = '', path: str = '') -> None:
 
             response = await response.json()
 
-            await file_iteration(
-                response, fetch_data, session, path, directory,
+            await response_handler(
+                response, directory, path, session, run_fetch_data,
             )

@@ -1,13 +1,13 @@
-"""Основной модуль."""
+"""Main module."""
 
 import asyncio
 
-from fetch_data import fetch_data
-from hash_counter import run
+from fetch_data import run_fetch_data
+from hash_counter import run_hash_counter
 
 
 async def start(task_list: list) -> None:
-    """Запускает асинхронные функции.
+    """Run the script.
 
     Args:
         task_list: (list) list of creating dirs
@@ -20,12 +20,12 @@ async def start(task_list: list) -> None:
     started_tasks = []
 
     for task in task_list:
-        started_tasks.append(asyncio.create_task(fetch_data(url, task)))
+        started_tasks.append(asyncio.create_task(run_fetch_data(url, task)))
 
     for started_task in started_tasks:
         await started_task
 
-    run(task_list)
+    run_hash_counter(task_list)
 
 
 asyncio.run(start(['task1', 'task2', 'task3']))

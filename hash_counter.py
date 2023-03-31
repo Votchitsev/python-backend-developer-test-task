@@ -4,7 +4,7 @@ import hashlib
 import os
 
 
-def run(dirs_list: list) -> None:
+def run_hash_counter(dirs_list: list) -> None:
     """Launch the module.
 
     Args:
