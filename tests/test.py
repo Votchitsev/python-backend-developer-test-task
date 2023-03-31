@@ -2,7 +2,7 @@
 import asyncio
 import os
 
-from hash_counter import run_fetch_data
+from hash_counter import run_hash_counter
 from main import start
 
 
@@ -19,7 +19,7 @@ def test_main():
 
 
 def test_hash_counter():
-    run_fetch_data(['task1', 'task2', 'task3'])
+    run_hash_counter(['task1', 'task2', 'task3'])
     equal_lines_number = 30
 
     with open('./result/hash.txt', 'r') as hash_file:
