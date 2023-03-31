@@ -8,6 +8,8 @@ packages = [{include = "python_backend_developer_test_task"}]
 
 [tool.poetry.dependencies]
 python = "^3.9"
+pytest-cov = "^4.0.0"
+pytest-asyncio = "^0.21.0"
 
 [tool.poetry.group.dev.dependencies]
 wemake-python-styleguide = "^0.17.0"

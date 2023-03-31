@@ -4,7 +4,7 @@ import hashlib
 import os
 
 
-def run(dirs_list):
+def run(dirs_list: list) -> None:
     """Launch the module.
 
     Args:
@@ -20,7 +20,7 @@ def run(dirs_list):
         sub_dir_handle(sub_dirs_list, directory)
 
 
-def sub_dir_handle(dir_content, target_dir):
+def sub_dir_handle(dir_content: list, target_dir: str) -> None:
     """Check the contents of the directory for other directories and files.
 
     Args:
@@ -44,7 +44,7 @@ def sub_dir_handle(dir_content, target_dir):
             write_hash_sum(checking_dir)
 
 
-def write_hash_sum(file_path):
+def write_hash_sum(file_path: str) -> None:
     """Read the hash amount of the file and writes it in hash.txt.
 
     Args:

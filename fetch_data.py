@@ -5,7 +5,7 @@ import os
 from aiohttp import ClientSession
 
 
-async def get_file(session, file_to_retrieve):
+async def get_file(session: object, file_to_retrieve: dict) -> dict:
     """Retrieve file.
 
     Args:
@@ -25,7 +25,12 @@ async def get_file(session, file_to_retrieve):
         return await blob.json()
 
 
-def write_file(directory, file_content, file_meta_data, path):
+def write_file(
+    directory: str,
+    file_content: dict,
+    file_meta_data: dict,
+    path: str,
+) -> None:
     """Create a file and write data to it.
 
     Args:
@@ -49,11 +54,11 @@ def write_file(directory, file_content, file_meta_data, path):
         writing_file.write(bytes_data)
 
 
-def add_dir(directory):
+def add_dir(directory: str) -> None:
     """Create a directory if it doesn't exists.
 
     Args:
-        directory(String): None
+        directory(str): None
     """
     if (directory):
         try:
@@ -62,7 +67,13 @@ def add_dir(directory):
             return
 
 
-async def file_iteration(files, callback, session, path, directory):
+async def file_iteration(
+    files: list,
+    callback: object,
+    session: object,
+    path: str,
+    directory: str,
+) -> None:
     """Identify files and directories from the request response.
 
     Args:
@@ -71,9 +82,6 @@ async def file_iteration(files, callback, session, path, directory):
         session: aiohttp.client.ClientSession
         path: string
         directory: string
-
-    Returns:
-        None
     """
     for file_data in files:
         if file_data['type'] == 'file':
@@ -83,20 +91,18 @@ async def file_iteration(files, callback, session, path, directory):
             write_file(directory, fl, file_data, path)
 
         if file_data['type'] == 'dir':
-            try:
-                add_dir(
-                    '/{dir}/{path}'.format(
-                        dir=directory,
-                        path=file_data['path'],
-                    ),
-                )
-            except FileExistsError:
-                return
+
+            add_dir(
+                '/{dir}/{path}'.format(
+                    dir=directory,
+                    path=file_data['path'],
+                ),
+            )
 
             await callback(file_data['url'], directory, file_data['path'])
 
 
-async def fetch_data(url, directory='', path=''):
+async def fetch_data(url: str, directory: str = '', path: str = '') -> None:
     """Get.
 
     Args:

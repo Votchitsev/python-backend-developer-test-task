@@ -4,3 +4,7 @@ result/*
 .vscode
 main_sync.py
 __pycache__/
+.coverage
+poetry.lock
+.pytest_cache/
+.cache/
